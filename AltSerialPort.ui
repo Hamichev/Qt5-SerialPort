@@ -37,7 +37,7 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="COMTab">
      <attribute name="title">
       <string>COM</string>
      </attribute>
@@ -331,6 +331,11 @@
              </item>
              <item>
               <property name="text">
+               <string>-</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>EvenParity</string>
               </property>
              </item>
@@ -399,17 +404,22 @@
             <widget class="QComboBox" name="CB_AltSerialPort_StopBits">
              <item>
               <property name="text">
+               <string>-</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>OneStop</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>OneAndHalfStop</string>
+               <string>TwoStop</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>TwoStop</string>
+               <string>OneAndHalfStop</string>
               </property>
              </item>
             </widget>
@@ -579,7 +589,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="ParseTab">
      <attribute name="title">
       <string>Parse</string>
      </attribute>
@@ -593,6 +603,9 @@
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_24">
          <item>
@@ -665,6 +678,9 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_22">
              <item>
@@ -821,7 +837,7 @@
               <widget class="QLineEdit" name="LE_AltSerialPort_Parse_UInt16">
                <property name="maximumSize">
                 <size>
-                 <width>50</width>
+                 <width>45</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -834,7 +850,7 @@
               <widget class="QLineEdit" name="LE_AltSerialPort_Parse_Int16">
                <property name="maximumSize">
                 <size>
-                 <width>50</width>
+                 <width>45</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -869,7 +885,7 @@
               <widget class="QLineEdit" name="LE_AltSerialPort_Parse_UInt32">
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
+                 <width>80</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -934,7 +950,7 @@
               <widget class="QLineEdit" name="LE_AltSerialPort_Parse_Int32">
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
+                 <width>80</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -999,7 +1015,7 @@
               <widget class="QLineEdit" name="LE_AltSerialPort_Parse_Float">
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
+                 <width>80</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -1067,6 +1083,224 @@
                 </size>
                </property>
               </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="WriteTab">
+     <attribute name="title">
+      <string>Write</string>
+     </attribute>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>0</y>
+        <width>751</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_28">
+       <item>
+        <widget class="QLineEdit" name="LE_AltSerialPort_Write_Packet">
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_26">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <spacer name="horizontalSpacer_27">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PB_AltSerialPort_Write_Back">
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Back</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="LE_AltSerialPort_Write_Symbol">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>1</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PB_AltSerialPort_Write_Next">
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Next</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_26">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PB_AltSerialPort_Write_WriteSymbol">
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Write Symbol</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_27">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLabel" name="L_AltSerialPort_Write_Preview">
+               <property name="text">
+                <string>Preview</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="LE_AltSerialPort_Write_Preview">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_25">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PB_AltSerialPort_Write_WritePacket">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Write Packet</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

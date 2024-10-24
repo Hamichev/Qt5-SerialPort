@@ -48,7 +48,7 @@
 #define DEFAULT_HEIGTH_SIZE_CB_FORMAT_DATA    40
 
 typedef struct {
-    QList<QByteArray>   Data;
+    QByteArray   Data;
 } AltSerialPortQueue_t;
 
 #define BYTE_SWAP(__MAJOR__,__MINOR__){ \
@@ -80,6 +80,8 @@ public:
     typedef enum {
       ConnectError_None = 0,
       ConnectError_NotFoundCOM,
+      ConnectError_NotFoundParity,
+      ConnectError_NotFoundStopBits,
       ConnectError_NotFoundTimeout,
       ConnectError_AlreadyConnected
     } ConnectError_t;
@@ -89,15 +91,28 @@ public:
       DisconnectError_AlreadyDisconnected
     } DisconnectError_t;
 
+    const float Version = 0.02;
 
 public slots:
-    void addQueue(QByteArray data){
-        m_Queue.Data.append(data);
+    bool isQueueEmpty(){
+        return m_L_Queue.isEmpty();
     };
 
-    QByteArray QueueTakeFirst(){
-        return m_Queue.Data.takeFirst();
+    void addQueue(QByteArray data){
+        AltSerialPortQueue_t t_AltSerialPortQueue;
+        t_AltSerialPortQueue.Data.append(data);
+        m_L_Queue.append(t_AltSerialPortQueue);
     };
+
+    AltSerialPortQueue_t queueTakeFirst(){
+        return m_L_Queue.takeFirst();
+    };
+
+    void writeData(QByteArray data){
+        if(!m_SerialPort && m_SerialPort->isOpen()){
+            m_SerialPort->write(data);
+        }
+    }
 
 private slots:
 
@@ -110,6 +125,9 @@ private slots:
 
     void COMPushButtonClicked();
     void ParsePushButtonClicked();
+    void WritePushButtonClicked();
+
+    void WriteLineEditChanged();
 
     QJsonObject ReadJson(QString path_file);
 
@@ -121,6 +139,9 @@ private slots:
     uint32_t SetByteOrder(TypeByteOrder_t type, uint32_t *data);
     float SetByteOrder(TypeByteOrder_t type, float *data);
 
+    void ConnectWidgetEnabled(bool state);
+
+    void BoldCharTextEdit(QTextEdit *textEdit, uint16_t index);
     void ConvertAndPrintCurrentData(QList<uint8_t> *data, uint16_t index);
 
 private:
@@ -130,7 +151,7 @@ private:
 
     QList<QString> m_L_COM;
 
-    AltSerialPortQueue_t m_Queue;
+    QList<AltSerialPortQueue_t> m_L_Queue;
 
     QString m_PathConfig = "";
 
@@ -175,6 +196,16 @@ private:
 
     bool m_Flag_StartReadDataByteArray = false;
     /*------------------END-PARAMETERS_TAB_PARSE------------------*/
+
+    /*------------------START-PARAMETERS_TAB_WRITE------------------*/
+    QLineEdit *m_LE_Write_Packet;
+    QLineEdit *m_LE_Write_Symbol;
+    QLineEdit *m_LE_Write_Preview;
+    QPushButton *m_PB_Write_Back;
+    QPushButton *m_PB_Write_Next;
+    QPushButton *m_PB_Write_WriteSymbol;
+    QPushButton *m_PB_Write_WritePacket;
+    /*------------------END-PARAMETERS_TAB_WRITE------------------*/
 
 
     union {
