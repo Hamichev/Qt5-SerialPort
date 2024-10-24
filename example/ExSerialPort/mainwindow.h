@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "AltSerialPort.h"
+
+#include "../../AltSerialPort.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,9 +17,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void parse(QByteArray rawData);
+    void requestData();
+
 private:
     Ui::MainWindow *ui;
 
-    AltSerialPort *m_AltSerialPort;
+    AltSerialPort   *m_AltSerialPort;
 };
 #endif // MAINWINDOW_H

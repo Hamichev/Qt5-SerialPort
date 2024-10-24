@@ -87,8 +87,6 @@ AltSerialPort::AltSerialPort(QWidget *parent, QString pathConfig) :
         if(index >= m_L_DataByteArray.size() || index == -1){
             return;
         }
-        m_TE_Packet->clear();
-        m_TE_Packet->setText(QString(m_L_DataByteArray[index]));
 
         m_L_DataUint8.clear();
         m_CurrentIndexData = 0;
@@ -101,6 +99,9 @@ AltSerialPort::AltSerialPort(QWidget *parent, QString pathConfig) :
         }
 
         ConvertAndPrintCurrentData(&m_L_DataUint8, m_CurrentIndexData);
+
+        m_TE_Packet->clear();
+        m_TE_Packet->setText(QString(m_L_DataByteArray[index]));
     });
 
     m_CB_Packets->view()->setMinimumSize(DEFAULT_WIDTH_SIZE_CB_PARSE_PACKETS,DEFAULT_HEIGTH_SIZE_CB_PARSE_PACKETS);
@@ -108,6 +109,26 @@ AltSerialPort::AltSerialPort(QWidget *parent, QString pathConfig) :
     m_CB_FormatInt32->view()->setMinimumSize(DEFAULT_WIDTH_SIZE_CB_FORMAT_DATA,DEFAULT_HEIGTH_SIZE_CB_FORMAT_DATA);
     m_CB_FormatFloat->view()->setMinimumSize(DEFAULT_WIDTH_SIZE_CB_FORMAT_DATA,DEFAULT_HEIGTH_SIZE_CB_FORMAT_DATA);
     /*---------------------------------End-INIT_TAB_PARSE----------------------------------*/
+
+
+    /*---------------------------------Start-INIT_TAB_WRITE----------------------------------*/
+    m_LE_Write_Packet = ui->LE_AltSerialPort_Write_Packet;
+    m_LE_Write_Symbol = ui->LE_AltSerialPort_Write_Symbol;
+    m_LE_Write_Preview = ui->LE_AltSerialPort_Write_Preview;
+    m_PB_Write_Back = ui->PB_AltSerialPort_Write_Back;
+    m_PB_Write_Next = ui->PB_AltSerialPort_Write_Next;
+    m_PB_Write_WriteSymbol = ui->PB_AltSerialPort_Write_WriteSymbol;
+    m_PB_Write_WritePacket = ui->PB_AltSerialPort_Write_WritePacket;
+    connect(m_PB_Write_Back, SIGNAL(clicked()), this, SLOT(WritePushButtonClicked()));
+    connect(m_PB_Write_Next, SIGNAL(clicked()), this, SLOT(WritePushButtonClicked()));
+    connect(m_PB_Write_WriteSymbol, SIGNAL(clicked()), this, SLOT(WritePushButtonClicked()));
+    connect(m_PB_Write_WritePacket, SIGNAL(clicked()), this, SLOT(WritePushButtonClicked()));
+
+    connect(m_LE_Write_Packet, SIGNAL(editingFinished()), this, SLOT(WriteLineEditChanged()));
+    connect(m_LE_Write_Symbol, SIGNAL(editingFinished()), this, SLOT(WriteLineEditChanged()));
+    connect(m_LE_Write_Preview, SIGNAL(editingFinished()), this, SLOT(WriteLineEditChanged()));
+    /*---------------------------------End-INIT_TAB_WRITE----------------------------------*/
+
 
     ReadJsonAltSerialPort(m_PathConfig);
 
@@ -133,6 +154,10 @@ bool AltSerialPort::SearchSerialPort(QList<QString> *list_com)
 {
     if(!m_SerialPort){
         return false;
+    }
+
+    if(m_SerialPort->isOpen()){
+        m_SerialPort->close();
     }
 
     if(m_CB_COM->count() != 0){
@@ -164,13 +189,19 @@ AltSerialPort::ConnectError_t AltSerialPort::ConnectSerialPort()
                 if("" == m_CB_COM->currentText()){
                     return ConnectError_NotFoundCOM;
                 }
+                if("-" == m_CB_Parity->currentText()){
+                    return ConnectError_NotFoundParity;
+                }
+                if("-" == m_CB_StopBits->currentText()){
+                    return ConnectError_NotFoundStopBits;
+                }
 
                 m_SerialPort->setPortName(m_CB_COM->currentText());
                 m_SerialPort->setBaudRate(m_CB_BaudRate->currentText().toInt());
-                m_SerialPort->setDataBits((QSerialPort::DataBits) m_CB_DataBits->currentText().toInt());
+                m_SerialPort->setDataBits((QSerialPort::DataBits) ((QString)m_CB_DataBits->currentText()[4]).toInt()); //Data(#Num)
                 m_SerialPort->setParity((QSerialPort::Parity) m_CB_Parity->currentText().toInt());
-                m_SerialPort->setStopBits((QSerialPort::StopBits) m_CB_StopBits->currentText().toInt());
-                m_SerialPort->setFlowControl((QSerialPort::FlowControl) m_CB_FlowControl->currentText().toInt());
+                m_SerialPort->setStopBits((QSerialPort::StopBits) m_CB_StopBits->currentIndex());
+                m_SerialPort->setFlowControl((QSerialPort::FlowControl) m_CB_FlowControl->currentIndex());
                 m_SerialPort->open(QIODevice::ReadWrite);
             }
             connect(m_SerialPort, &QIODevice::readyRead, this, &AltSerialPort::IntermediateFuncReadyRead);
@@ -251,14 +282,26 @@ void AltSerialPort::COMPushButtonClicked()
             default:
                 break;
             }
+            ConnectWidgetEnabled(true);
         }
         else {
             switch(ConnectSerialPort()){
             case ConnectError_None:
+                ConnectWidgetEnabled(false);
                 break;
             case ConnectError_NotFoundCOM:
                 QMessageBox::warning(this, tr("Error COM"),
                                            tr("COM port is not found."),
+                                           QMessageBox::Ok);
+                break;
+            case ConnectError_NotFoundParity:
+                QMessageBox::warning(this, tr("Error Parity"),
+                                           tr("Parity is not found."),
+                                           QMessageBox::Ok);
+                break;
+            case ConnectError_NotFoundStopBits:
+                QMessageBox::warning(this, tr("Error StopBits"),
+                                           tr("StopBits is not found."),
                                            QMessageBox::Ok);
                 break;
             case ConnectError_NotFoundTimeout:
@@ -312,6 +355,63 @@ void AltSerialPort::ParsePushButtonClicked()
 
         m_CurrentIndexData++;
         ConvertAndPrintCurrentData(&m_L_DataUint8, m_CurrentIndexData);
+    }
+}
+
+void AltSerialPort::WritePushButtonClicked()
+{
+    static QByteArray byteArray;
+    unsigned char symbol;
+
+    QObject* button = QObject::sender();
+
+    if(button == m_PB_Write_Back){
+        if(m_LE_Write_Symbol->text().toUInt() == 0){
+            return;
+        }
+        else {
+            m_LE_Write_Symbol->setText(QString::number(m_LE_Write_Symbol->text().toUInt() - 1));
+        }
+        byteArray.clear();
+        QDataStream dataStream(&byteArray, QIODevice::ReadWrite);
+        symbol = m_LE_Write_Symbol->text().toUInt();
+        dataStream << symbol;
+        //qDebug() << byteArray;
+        m_LE_Write_Preview->setText(byteArray.data()); //TODO: Some characters are not output
+    }
+    else if (button == m_PB_Write_Next){
+        if(m_LE_Write_Symbol->text().toUInt() == 255){
+            return;
+        }
+        else {
+            m_LE_Write_Symbol->setText(QString::number(m_LE_Write_Symbol->text().toUInt() + 1));
+        }
+        byteArray.clear();
+        QDataStream dataStream(&byteArray, QIODevice::ReadWrite);
+        symbol = m_LE_Write_Symbol->text().toUInt();
+        dataStream << symbol;
+        m_LE_Write_Preview->setText(byteArray.data()); //TODO: Some characters are not output
+    }
+    else if (button == m_PB_Write_WriteSymbol){
+        m_LE_Write_Packet->setText(m_LE_Write_Packet->text() + QString(byteArray));
+    }
+    else if (button == m_PB_Write_WritePacket){
+        writeData(m_LE_Write_Packet->text().toUtf8());
+    }
+}
+
+void AltSerialPort::WriteLineEditChanged()
+{
+    QObject* lineEdit = QObject::sender();
+
+    if(lineEdit == m_LE_Write_Packet){
+    }
+    else if(lineEdit == m_LE_Write_Symbol){
+        if(m_LE_Write_Symbol->text().toUInt() < 0 || m_LE_Write_Symbol->text().toUInt() > 255){
+            m_LE_Write_Symbol->setText("127");
+        }
+    }
+    else if(lineEdit == m_LE_Write_Preview){
     }
 }
 
@@ -477,17 +577,37 @@ float AltSerialPort::SetByteOrder(AltSerialPort::TypeByteOrder_t type, float *da
     return f;
 }
 
-void AltSerialPort::ConvertAndPrintCurrentData(QList<uint8_t> *data, uint16_t index)
+void AltSerialPort::ConnectWidgetEnabled(bool state)
 {
-    QTextCursor cursor = m_TE_Packet->textCursor();
+    m_PB_Refresh->setEnabled(state);
+    m_CB_COM->setEnabled(state);
+    m_CB_BaudRate->setEnabled(state);
+    m_CB_DataBits->setEnabled(state);
+    m_CB_Parity->setEnabled(state);
+    m_CB_StopBits->setEnabled(state);
+    m_CB_FlowControl->setEnabled(state);
+    m_LE_Timeout->setEnabled(state);
+}
+
+void AltSerialPort::BoldCharTextEdit(QTextEdit *textEdit, uint16_t index)
+{
+    if(!m_TE_Packet){
+        return;
+    }
+
+    QTextCursor cursor = textEdit->textCursor();
     cursor.setPosition(index);
     cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
     QTextCharFormat format;
-    format.setFontWeight(QFont::Bold);
+    (0 == index) ? (format.setFontWeight(QFont::Normal)) : (format.setFontWeight(QFont::Bold)); // TODO: You need to remove format when exiting the function
     cursor.mergeCharFormat(format);
     m_TE_Packet->setFontWeight(QFont::Normal);
     m_TE_Packet->setTextCursor(cursor);
+}
 
+void AltSerialPort::ConvertAndPrintCurrentData(QList<uint8_t> *data, uint16_t index)
+{
+    BoldCharTextEdit(m_TE_Packet,index);
 
     if(m_CurrentIndexData > (m_L_DataUint8.size() - sizeof(uint16_t))){
         for(uint8_t i=0; i<sizeof(uint8_t); i++){
@@ -505,9 +625,9 @@ void AltSerialPort::ConvertAndPrintCurrentData(QList<uint8_t> *data, uint16_t in
         }
     }
 
-    m_LE_Parse_Char->setText(QString(char((*data)[0])));
-    m_LE_Parse_UInt8->setText(QString::number(uint8_t((*data)[0])));
-    m_LE_Parse_Int8->setText(QString::number(int8_t((*data)[0])));
+    m_LE_Parse_Char->setText(QString(char((*data)[index])));
+    m_LE_Parse_UInt8->setText(QString::number(uint8_t((*data)[index])));
+    m_LE_Parse_Int8->setText(QString::number(int8_t((*data)[index])));
     (m_CurrentIndexData < (m_L_DataUint8.size() - (sizeof(uint16_t) - 1))) ? (m_LE_Parse_UInt16->setText(QString::number(m_u16[0]))) : (m_LE_Parse_UInt16->setText("None"));
     (m_CurrentIndexData < (m_L_DataUint8.size() - (sizeof(uint16_t) - 1))) ? (m_LE_Parse_Int16->setText(QString::number(m_i16[0]))) : (m_LE_Parse_Int16->setText("None"));
     (m_CurrentIndexData < (m_L_DataUint8.size() - (sizeof(uint32_t) - 1))) ? (m_LE_Parse_UInt32->setText(QString::number(SetByteOrder(TypeByteOrder_t(m_CB_FormatUInt32->currentIndex()), &m_u32))))
