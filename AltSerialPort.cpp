@@ -199,7 +199,7 @@ AltSerialPort::ConnectError_t AltSerialPort::ConnectSerialPort()
                 m_SerialPort->setPortName(m_CB_COM->currentText());
                 m_SerialPort->setBaudRate(m_CB_BaudRate->currentText().toInt());
                 m_SerialPort->setDataBits((QSerialPort::DataBits) ((QString)m_CB_DataBits->currentText()[4]).toInt()); //Data(#Num)
-                m_SerialPort->setParity((QSerialPort::Parity) m_CB_Parity->currentText().toInt());
+                m_SerialPort->setParity((QSerialPort::Parity) m_CB_Parity->currentIndex());
                 m_SerialPort->setStopBits((QSerialPort::StopBits) m_CB_StopBits->currentIndex());
                 m_SerialPort->setFlowControl((QSerialPort::FlowControl) m_CB_FlowControl->currentIndex());
                 m_SerialPort->open(QIODevice::ReadWrite);
